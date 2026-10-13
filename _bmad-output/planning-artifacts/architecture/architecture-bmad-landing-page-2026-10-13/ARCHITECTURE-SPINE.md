@@ -252,3 +252,10 @@ graph LR
 - **Rating source** (OQ-3: static admin data hay TMDB API) — không ảnh hưởng đến các AD hiện tại; quyết định khi build F2/F4
 - **Image remotePatterns cụ thể** — mở rộng khi biết nguồn poster thực tế admin sẽ dùng
 - **React Native port** — tokens và IA đã platform-agnostic per UX doc; API routes là contract chung; không cần quyết định thêm ở feature level
+
+## Architecture Decisions
+
+### AR-13 — Testing strategy
+- **Decision:** Vitest + React Testing Library
+- **Rationale:** Tích hợp tốt với Vite toolchain, test theo cách user interact (role/label queries), bắt a11y bugs sớm. Playwright để ngỏ cho tương lai.
+- **Convention:** Story 1.1 chỉ install dependency; test thực viết từ Story 1.2 trở đi.

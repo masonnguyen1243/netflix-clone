@@ -29,15 +29,15 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-13-2026 00:00
-last_updated: 10-13-2026 00:00
+last_updated: 10-13-2026 13:00
 project: bmad-landing-page
 project_key: NOKEY
 tracking_system: file-system
-story_location: 
+story_location:
   /Users/mason/Workspace/masonnguyen/bmad-landing-page/_bmad-output/implementation-artifacts
 development_status:
-  epic-1: backlog
-  1-1-project-setup-infrastructure: backlog
+  epic-1: in-progress
+  1-1-project-setup-infrastructure: done
   1-2-design-token-system-global-layout: backlog
   1-3-authentication-pages-route-protection: backlog
   epic-1-retrospective: optional
