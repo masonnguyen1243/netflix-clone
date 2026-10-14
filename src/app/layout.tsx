@@ -5,6 +5,7 @@ import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="vi">
-        <body className={inter.className}>{children}</body>
+        <body className={`${inter.variable} font-sans antialiased`}>
+          {children}
+        </body>
       </html>
     </ClerkProvider>
   );

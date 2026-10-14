@@ -11,3 +11,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-1-project-setup-infrastructure.md`
   summary: `rating` trong `movies` thiếu range constraint (không enforce 0–10)
   evidence: Không trong scope spec; invalid ratings có thể lọc vào qua API trực tiếp; nên thêm `CHECK (rating >= 0 AND rating <= 10)` trong migration tương lai
+
+## Deferred from: code review of spec-1-2-design-token-system-global-layout (2026-10-14)
+
+- BottomNav rendered unconditionally in `(viewer)/layout.tsx` — no mechanism to suppress for full-screen pages (e.g. video player). Pre-existing design; no full-screen pages exist yet. Revisit when Epic 3 (video player page) is implemented.
