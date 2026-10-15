@@ -15,3 +15,17 @@
 ## Deferred from: code review of spec-1-2-design-token-system-global-layout (2026-10-14)
 
 - BottomNav rendered unconditionally in `(viewer)/layout.tsx` — no mechanism to suppress for full-screen pages (e.g. video player). Pre-existing design; no full-screen pages exist yet. Revisit when Epic 3 (video player page) is implemented.
+
+## Deferred from: code review of spec-1-3-authentication-pages-route-protection (2026-10-15)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-3-authentication-pages-route-protection.md`
+  summary: UnauthorizedPage thiếu metadata export — browser tab và SEO crawlers hiển thị root layout title
+  evidence: Không có trong spec; design decision; pattern chung của pages trong project
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-3-authentication-pages-route-protection.md`
+  summary: Unauthenticated user hitting /admin bị redirect → /unauthorized thay vì /sign-in
+  evidence: Behavior per spec literal (non-admin → /unauthorized); unauthenticated = non-admin; nhưng confusing UX; cần design decision khi admin flows được implement (Epic 5)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-3-authentication-pages-route-protection.md`
+  summary: currentUser() không có error boundary riêng trong (viewer) route group
+  evidence: Next.js root error.tsx handles; "không install package mới" constraint; revisit khi Epic 3+ nếu cần custom error UI
