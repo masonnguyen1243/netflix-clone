@@ -33,3 +33,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-3-authentication-pages-route-protection.md`
   summary: Landing page `page.tsx` thiếu metadata export (title, description, OG tags) — SEO và social sharing
   evidence: Pre-existing pattern across all pages; không có trong spec; revisit trước public launch
+
+## Deferred from: code review of spec-2-1-supabase-seed-movie-api-routes (2026-10-15)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-supabase-seed-movie-api-routes.md`
+  summary: GET /api/genres không có caching — mỗi request hit Supabase trực tiếp
+  evidence: Genres ít thay đổi; không có unstable_cache, không có Cache-Control header; không trong scope của story này; nên cache tương tự movies endpoint trong Epic 2 hoặc sau
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-supabase-seed-movie-api-routes.md`
+  summary: Seed script không load .env.local — developer phải export env vars thủ công trước khi chạy npm run seed
+  evidence: Script chạy ngoài Next.js runtime; không có dotenv; explicit failure tại first DB call với error message rõ ràng; developer responsibility
