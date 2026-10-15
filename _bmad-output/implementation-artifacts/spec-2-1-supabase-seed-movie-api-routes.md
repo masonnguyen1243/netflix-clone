@@ -3,6 +3,7 @@ title: 'Story 2.1: Supabase Seed & Movie API Routes'
 type: 'feature'
 created: '2026-10-15'
 status: 'done'
+review_status: 'done'
 route: 'dispatch'
 review_loop_iteration: 1
 context: []
@@ -168,6 +169,15 @@ export async function GET(request: Request) {
 | 31 | carried: trailer_url = video_url trong seed | low | Carried từ row #5; rejected | reject |
 | 32 | carried: Portuguese trong Design Notes | cosmetic | Carried từ row #16; fix edits spec | reject |
 | 33 | carried: !year/!rating falsy | low | Carried từ row #18; rejected | reject |
+
+### Review Findings
+
+- [x] [Review][Patch] Genres fetch failure after successful insert returns HTTP 500 — change to return 201 with genres:[] so caller knows the movie was created and avoids duplicate retry [src/app/api/admin/movies/route.ts:97-101]
+- [x] [Review][Patch] seed.ts imports createClient directly from @supabase/supabase-js instead of createAdminClient() — violates "Always" constraint and Code Map [scripts/seed.ts:1,14]
+- [x] [Review][Patch] seed() bare call with no .catch() — unhandled rejection exits with code 0 on failure, silently passing CI [scripts/seed.ts:289]
+- [x] [Review][Patch] Seed silently skips unknown genre names without error — missing association with no log or exit [scripts/seed.ts:272-276]
+- [x] [Review][Patch] Search-path test asserts genres: expect.any(Array) instead of ["Sci-Fi"] — genre mapping regression ships undetected [src/app/api/movies/route.test.ts:103]
+- [x] [Review][Defer] "Next.js 16.4 App Router" version typo in epic-2-context.md — deferred: editing agent-context file; no runtime impact
 
 ## Spec Change Log
 

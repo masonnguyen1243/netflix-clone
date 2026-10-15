@@ -1,17 +1,13 @@
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-// Load env vars manually since this runs outside Next.js
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.error(
     "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY environment variables"
   );
   process.exit(1);
 }
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const supabase = createAdminClient();
 
 const genres = [
   { id: crypto.randomUUID(), name: "Action" },
@@ -270,9 +266,11 @@ async function seed() {
   for (const movie of movieData) {
     for (const genreName of movie.genreNames) {
       const genreId = genreMap.get(genreName);
-      if (genreId) {
-        movieGenresRows.push({ movie_id: movie.id, genre_id: genreId });
+      if (!genreId) {
+        console.error(`Unknown genre: "${genreName}" — add it to the genres array`);
+        process.exit(1);
       }
+      movieGenresRows.push({ movie_id: movie.id, genre_id: genreId });
     }
   }
 
@@ -286,4 +284,4 @@ async function seed() {
   console.log(`Seed complete: ${movieData.length} movies, ${genres.length} genres inserted.`);
 }
 
-seed();
+seed().catch((e) => { console.error(e); process.exit(1); });

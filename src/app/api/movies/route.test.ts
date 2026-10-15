@@ -100,7 +100,7 @@ describe("GET /api/movies", () => {
     expect(res.headers.get("Cache-Control")).toBe("no-store");
     const body = await res.json();
     expect(Array.isArray(body.data)).toBe(true);
-    expect(body.data[0]).toMatchObject({ genres: expect.any(Array) });
+    expect(body.data[0]).toMatchObject({ genres: ["Sci-Fi"] });
   });
 
   it("returns HTTP 500 with { error } when DB fails on all-movies query", async () => {

@@ -95,10 +95,7 @@ export async function POST(request: Request) {
       .select("id, name")
       .in("id", genreIdList);
     if (genreErr) {
-      return NextResponse.json(
-        { error: "Movie created but genres could not be fetched" },
-        { status: 500 }
-      );
+      genres = [];
     }
     genres = (genreData ?? []) as Genre[];
   }

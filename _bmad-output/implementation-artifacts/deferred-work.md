@@ -43,3 +43,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-1-supabase-seed-movie-api-routes.md`
   summary: Seed script không load .env.local — developer phải export env vars thủ công trước khi chạy npm run seed
   evidence: Script chạy ngoài Next.js runtime; không có dotenv; explicit failure tại first DB call với error message rõ ràng; developer responsibility
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-supabase-seed-movie-api-routes.md`
+  summary: "Next.js 16.4 App Router" version typo in epic-2-context.md — Next.js 16 does not exist; current stable is 15.x
+  evidence: Fix requires editing agent-context file (epic-2-context.md); no runtime impact; deferred from iteration 3 code review
