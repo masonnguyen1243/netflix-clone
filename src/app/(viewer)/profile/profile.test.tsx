@@ -1,14 +1,17 @@
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import ProfilePage from "./page";
+import { currentUser } from "@clerk/nextjs/server";
 
 vi.mock("@clerk/nextjs/server", () => ({
-  currentUser: vi.fn().mockResolvedValue({
-    fullName: "Nguyễn Test",
-    primaryEmailAddress: { emailAddress: "test@example.com" },
-    imageUrl: "https://example.com/avatar.jpg",
-  }),
+  currentUser: vi.fn(),
 }));
+
+const mockUser = {
+  fullName: "Nguyễn Test",
+  primaryEmailAddress: { emailAddress: "test@example.com" },
+  imageUrl: "https://example.com/avatar.jpg",
+};
 
 vi.mock("next/image", () => ({
   default: ({
@@ -30,6 +33,10 @@ vi.mock("next/image", () => ({
 }));
 
 describe("Profile page", () => {
+  beforeEach(() => {
+    vi.mocked(currentUser).mockResolvedValue(mockUser as never);
+  });
+
   it("renders the account heading", async () => {
     render(await ProfilePage());
     expect(
@@ -52,5 +59,11 @@ describe("Profile page", () => {
     const img = screen.getByRole("img", { name: "Avatar" });
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute("src", "https://example.com/avatar.jpg");
+  });
+
+  it("does not render avatar when imageUrl is absent", async () => {
+    vi.mocked(currentUser).mockResolvedValueOnce({ ...mockUser, imageUrl: "" } as never);
+    render(await ProfilePage());
+    expect(screen.queryByRole("img", { name: "Avatar" })).not.toBeInTheDocument();
   });
 });

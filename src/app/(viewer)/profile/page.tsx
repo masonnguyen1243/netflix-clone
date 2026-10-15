@@ -20,20 +20,20 @@ export default async function ProfilePage() {
             />
           )}
 
-          <dl className="mt-4 space-y-2">
+          <dl className="mt-4 space-y-4">
             {user.fullName && (
-              <>
+              <div>
                 <dt className="text-muted-foreground text-sm">Họ và tên</dt>
                 <dd className="font-medium">{user.fullName}</dd>
-              </>
+              </div>
             )}
             {user.primaryEmailAddress?.emailAddress && (
-              <>
+              <div>
                 <dt className="text-muted-foreground text-sm">Email</dt>
                 <dd className="font-medium">
                   {user.primaryEmailAddress.emailAddress}
                 </dd>
-              </>
+              </div>
             )}
           </dl>
         </div>

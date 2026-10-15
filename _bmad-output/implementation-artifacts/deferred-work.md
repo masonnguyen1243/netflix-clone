@@ -29,3 +29,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-3-authentication-pages-route-protection.md`
   summary: currentUser() không có error boundary riêng trong (viewer) route group
   evidence: Next.js root error.tsx handles; "không install package mới" constraint; revisit khi Epic 3+ nếu cần custom error UI
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-3-authentication-pages-route-protection.md`
+  summary: Landing page `page.tsx` thiếu metadata export (title, description, OG tags) — SEO và social sharing
+  evidence: Pre-existing pattern across all pages; không có trong spec; revisit trước public launch

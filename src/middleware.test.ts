@@ -72,6 +72,7 @@ describe("middleware", () => {
     const auth = makeAuth("admin");
     await handler(auth, makeRequest("/admin"));
     expect(mockRedirect).not.toHaveBeenCalled();
+    expect(mockAuthProtect).not.toHaveBeenCalled();
   });
 
   it("does not protect public route / (matrix row 4: authenticated hits /)", async () => {
@@ -79,6 +80,24 @@ describe("middleware", () => {
     if (!handler) throw new Error("handler not registered");
     const auth = makeAuth();
     await handler(auth, makeRequest("/"));
+    expect(mockAuthProtect).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it("does not protect public route /sign-in", async () => {
+    const handler = capturedHandlerRef.current;
+    if (!handler) throw new Error("handler not registered");
+    const auth = makeAuth();
+    await handler(auth, makeRequest("/sign-in"));
+    expect(mockAuthProtect).not.toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it("does not protect public route /sign-up", async () => {
+    const handler = capturedHandlerRef.current;
+    if (!handler) throw new Error("handler not registered");
+    const auth = makeAuth();
+    await handler(auth, makeRequest("/sign-up"));
     expect(mockAuthProtect).not.toHaveBeenCalled();
     expect(mockRedirect).not.toHaveBeenCalled();
   });

@@ -19,6 +19,11 @@ vi.mock("next/link", () => ({
 }));
 
 describe("Unauthorized page", () => {
+  it('renders 403 heading', () => {
+    render(<UnauthorizedPage />);
+    expect(screen.getByRole("heading", { name: "403" })).toBeInTheDocument();
+  });
+
   it('renders "Bạn không có quyền truy cập"', () => {
     render(<UnauthorizedPage />);
     expect(

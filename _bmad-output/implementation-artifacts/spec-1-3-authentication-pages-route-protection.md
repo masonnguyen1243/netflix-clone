@@ -3,6 +3,7 @@ title: 'Story 1.3: Authentication Pages & Route Protection'
 type: 'feature'
 created: '2026-10-14'
 status: 'done'
+review_status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '33647dc77375573682159c10bdcc6d1f1a3dcf72'
@@ -143,3 +144,22 @@ context: []
 - Click "Đăng nhập" → `/sign-in`, Clerk form render
 - Sign in → redirect `/home`
 - Non-admin truy cập `/admin` → redirect `/unauthorized` với "Bạn không có quyền truy cập"
+
+## Review Findings
+
+### Round 2 — 2026-10-15
+
+- [x] [Review][Patch] No middleware test for /sign-in and /sign-up as public routes [src/middleware.test.ts] — medium: if "/sign-in(.*)" or "/sign-up(.*)" were removed from isPublicRoute, unauthenticated users would hit an infinite redirect loop; no test catches this regression
+- [x] [Review][Patch] Admin-on-/admin test missing `expect(mockAuthProtect).not.toHaveBeenCalled()` [src/middleware.test.ts:69-75] — EC-3 patch verdict from round 1 not applied; if `else if` reverted to `if`, protect() called redundantly for admin but test still passes
+- [x] [Review][Patch] Profile `<dl>` flat siblings — `space-y-2` creates equal spacing between dt/dd and between pairs [src/app/(viewer)/profile/page.tsx:23-38] — visual grouping ambiguous; wrap each dt/dd pair in a `<div>`, apply space-y-2 on container
+- [x] [Review][Patch] `unauthorized.test.tsx` missing assertion for "403" heading [src/app/(viewer)/unauthorized/unauthorized.test.tsx] — `<h1>403</h1>` is the primary content landmark; no test verifies it renders
+- [x] [Review][Patch] Profile page: imageUrl-absent branch untested [src/app/(viewer)/profile/profile.test.tsx] — `{user.imageUrl && <Image ...>}` conditional never exercised with imageUrl absent; all 4 tests mock a user with imageUrl
+- [x] [Review][Defer] Landing page `page.tsx` missing metadata export [src/app/page.tsx] — deferred: pre-existing pattern across all pages; not in spec scope for this story
+
+#### Rejected
+
+- Auth pages missing page-level `<h1>` for WCAG 2.4.2: **false** — spec explicitly forbids custom UI for sign-in/sign-up; Clerk component renders its own accessible markup
+- Profile test mock not reset between tests: **false** — no test mutates the mock; cross-test contamination does not occur in current suite
+- Landing page missing sign-up CTA: **false** — spec prescribes "entry point duy nhất" with sign-in link only; implementation matches spec exactly
+- AC `/home` redirect URL not observable in tests: **false** — Clerk's `auth.protect()` handles redirect URL internally; test correctly verifies protect() is called (duplicate of BH-7 rejection from round 1)
+- `mockAuthProtect` lacks `.mockResolvedValue()`: **false** — `await undefined` is valid JS; async contract satisfied without explicit resolved value
