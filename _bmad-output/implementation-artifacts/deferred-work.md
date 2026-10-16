@@ -47,3 +47,25 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-1-supabase-seed-movie-api-routes.md`
   summary: "Next.js 16.4 App Router" version typo in epic-2-context.md — Next.js 16 does not exist; current stable is 15.x
   evidence: Fix requires editing agent-context file (epic-2-context.md); no runtime impact; deferred from iteration 3 code review
+
+## Deferred from: code review of spec-2-3-home-page-hero-banner-genre-rows (2026-10-16)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: movies[0] làm featured hero — không có ordering → hero movie non-deterministic giữa các cache invalidation
+  evidence: fetchAllMovies không có .order(); hero thay đổi khi cache bust. Low UX impact nhưng ideally nên pin featured movie hoặc sort by rating/year.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: getGenreList trong movieData.ts không có cache tags — không thể programmatic invalidation qua revalidateTag
+  evidence: unstable_cache({ revalidate: 3600 }) nhưng không có tags: ["genres"]. Không có story nào yêu cầu genre cache invalidation hiện tại.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: Promise.all([getMovieList(), getGenreList()]) trong home page — genres failure làm toàn bộ page fail dù movies healthy
+  evidence: Không có .catch(() => []) fallback trên getGenreList. Error boundary (error.tsx) xử lý case này per spec, nhưng partial degraded UI (show movies without genre grouping) sẽ tốt hơn.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: fetchAllMovies và getMoviesByQuery trong movieData.ts có map() transform duplicated
+  evidence: Pre-existing từ route.ts cũ; refactor sang shared toMovieSummary() helper trong story sau.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: route.test.ts mock supabase/anon và next/cache thay vì @/lib/movieData — khó đọc sau refactor
+  evidence: Tests pass vì mock áp dụng transitive, nhưng future reader sẽ không thấy movieData mock và có thể confused.
