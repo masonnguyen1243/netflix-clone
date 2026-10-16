@@ -3,6 +3,7 @@ title: 'Story 2.2: MovieCard & MovieRow Components'
 type: 'feature'
 created: '2026-10-15'
 status: 'done'
+review_status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'f256795aef7c9bf54e1c28b529c5557881cc953e'
@@ -119,6 +120,26 @@ Dùng class `scrollbar-hide` trên scroll container.
 | 14 | Image 404/error: `onLoad` không fire → skeleton tồn tại mãi (ECH) | patch | patch | Thực tế: poster bị lỗi → shimmer mãi, không có fallback. Fix: thêm `onError={() => setImageLoaded(true)}` vào `<Image>`. |
 | 15 | `movie.id` null/empty → href `/movie/null` (ECH) | false | reject | `MovieSummary.id: string` không nullable; type-check pass; Supabase UUID đảm bảo non-empty. |
 | 16 | "Xem thêm" text literal thiếu bên cạnh `›` (ECH) | false | reject | "Xem thêm" trong spec là nhãn mô tả cho ký tự `›` (tức arrow này có nghĩa là "xem thêm"), không phải text cần render. Implementation `›` đúng với UI Netflix-style. |
+
+### Review Findings (2026-10-16, Run 2)
+
+- [x] [Review][Decision] Card width formula conflict — resolved: Design Notes formula (`w-[45vw] sm:w-[22vw] md:w-[160px]`) is authoritative; Tasks section formula was superseded. Implementation correct as-is.
+- [x] [Review][Patch] `onError` dismisses skeleton but no test verifies it — added `dismisses skeleton after onError fires (broken poster)` test [MovieCard.test.tsx]
+- [x] [Review][Patch] Bookmark SVG test lacks `aria-hidden="true"` assertion — added `toHaveAttribute("aria-hidden", "true")` [MovieCard.test.tsx:80–85]
+- [x] [Review][Patch] Loading skeleton wrappers in MovieRow missing `snap-start` — added `snap-start` to skeleton wrapper className [MovieRow.tsx:57]
+
+**Rejected (Run 2):**
+- `›` arrow: `aria-hidden="true"` already present on `<span>` — false
+- `<a>` vs `<Link>`: spec-mandated — false (same as prior #1)
+- Stale IO ref on null-return: no user-visible harm, observer guards prevent re-attachment — low reject
+- MovieRow mock drops onLoad: test concerns correctly separated; no assertion on skeleton absence in row tests — low reject
+- `<a>` no accessible name during loading: title `<p>` always in DOM, opacity-0 doesn't remove from a11y tree — false
+- No barrel export: not a spec requirement — low reject
+- Empty poster_url no fallback: API layer responsibility, not in spec — low reject
+- `rating` NaN: Supabase numeric columns never produce NaN — false
+- Touch hover invisible: spec defines hover-only behavior; design gap not code bug — false
+- `observer.disconnect()` untested: cleanup code correct, test has minimal protection value — low reject
+- Skeleton wrapper extra div: both card and skeleton use `aspect-[2/3]`, so skeleton fills correctly — false
 
 ## Verification
 

@@ -55,7 +55,7 @@ export function MovieRow({ title, movies, isLoading = false, onLoadMore }: Movie
       <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x pb-2 px-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={cardClass}>
+              <div key={i} className={`${cardClass} snap-start`}>
                 <MovieCardSkeleton />
               </div>
             ))

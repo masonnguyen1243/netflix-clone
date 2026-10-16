@@ -77,10 +77,11 @@ describe("MovieCard", () => {
     expect(screen.getByText("8.5")).toBeInTheDocument();
   });
 
-  it("renders bookmark SVG in the DOM", () => {
+  it("renders bookmark SVG in the DOM with aria-hidden", () => {
     const { container } = render(<MovieCard movie={baseMovie} />);
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();
+    expect(svg).toHaveAttribute("aria-hidden", "true");
   });
 
   it("renders skeleton when image has not loaded", () => {
@@ -103,6 +104,17 @@ describe("MovieCard", () => {
 
     await act(async () => {
       capturedOnLoad?.();
+    });
+
+    expect(container.querySelector(".animate-pulse")).not.toBeInTheDocument();
+  });
+
+  it("dismisses skeleton after onError fires (broken poster)", async () => {
+    const { container } = render(<MovieCard movie={baseMovie} />);
+    expect(container.querySelector(".animate-pulse")).toBeInTheDocument();
+
+    await act(async () => {
+      capturedOnError?.();
     });
 
     expect(container.querySelector(".animate-pulse")).not.toBeInTheDocument();
