@@ -17,7 +17,7 @@ export function SearchBar() {
   const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
-    if (!debouncedQuery) {
+    if (!debouncedQuery.trim()) {
       setResults([]);
       setIsOpen(false);
       return;
@@ -94,7 +94,7 @@ export function SearchBar() {
       />
 
       {isOpen && (
-        <ul
+        <div
           role="listbox"
           id="search-dropdown"
           className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-[400px] bg-surface-elevated border border-border rounded-lg shadow-lg z-50 overflow-hidden"
@@ -137,7 +137,7 @@ export function SearchBar() {
           >
             Xem tất cả
           </button>
-        </ul>
+        </div>
       )}
     </div>
   );

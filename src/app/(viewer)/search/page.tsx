@@ -13,7 +13,7 @@ export default function SearchPage() {
 
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [results, setResults] = useState<MovieSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean((searchParams.get("q") ?? "").trim()));
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
 

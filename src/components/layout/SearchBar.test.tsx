@@ -225,4 +225,64 @@ describe("SearchBar", () => {
 
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
+
+  it("closes dropdown when input is cleared", async () => {
+    const movies = makeMovies(3);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: movies }),
+    } as Response);
+
+    render(<SearchBar />);
+    const input = screen.getByRole("combobox");
+
+    // Open the dropdown
+    fireEvent.change(input, { target: { value: "phim" } });
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("listbox")).toBeInTheDocument();
+    });
+
+    // Clear the input — dropdown must close
+    fireEvent.change(input, { target: { value: "" } });
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+
+  it("does not call router.push when Enter is pressed on whitespace-only input", () => {
+    render(<SearchBar />);
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "   " } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it("keeps dropdown closed when fetch returns non-ok HTTP status", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
+    } as Response);
+
+    render(<SearchBar />);
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "phim" } });
+
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
 });
