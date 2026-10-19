@@ -69,3 +69,17 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
   summary: route.test.ts mock supabase/anon và next/cache thay vì @/lib/movieData — khó đọc sau refactor
   evidence: Tests pass vì mock áp dụng transitive, nhưng future reader sẽ không thấy movieData mock và có thể confused.
+
+## Deferred from: code review of spec-2-3-home-page-hero-banner-genre-rows (2026-10-19)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: genres/route.ts task checked [x] in spec but refactor deliberately not executed
+  evidence: Pre-existing acknowledged decision — Implementation Notes explain genres route kept inline due to Vitest/unstable_cache incompatibility. Checkbox is misleading but the decision is documented. Fix would require editing the spec (uncheck) or doing the refactor (out of scope per implementation decision).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: getMoviesByQuery escape logic does not escape backslash before % and _ — in environments where \ is ILIKE escape char, user input containing \ could corrupt the pattern
+  evidence: Pre-existing — identical escape logic present in 276b525:src/app/api/movies/route.ts before this story's refactor. Fix: replace backslash first: `q.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
+  summary: next/image mock in HeroBanner.test.tsx spreads all props (including `fill` boolean) onto DOM img — generates React unknown-prop warning
+  evidence: Pre-existing pattern — same mock shape used in MovieCard.test.tsx (Story 2.2). Fix: destructure fill, sizes, priority out of spread before passing rest to img.

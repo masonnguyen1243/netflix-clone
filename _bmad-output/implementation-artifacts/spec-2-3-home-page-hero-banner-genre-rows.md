@@ -125,3 +125,34 @@ context: []
 - `npm run type-check` — expected: 0 TypeScript errors
 - `npm run lint` — expected: 0 lint errors
 - `npm test -- --testPathPattern="home|HeroBanner"` — expected: tất cả tests pass
+
+## Review Findings
+
+Code review run: 2026-10-19 — 4 layers (Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor).
+
+### Decision-Needed
+
+- [ ] [Review][Decision] Focus ring spec says always-on (`ring-2 ring-primary`) but implementation uses `focus-visible:ring-2 focus-visible:ring-primary` — Spec constraint `Boundaries & Constraints` writes `ring-2 ring-primary focus-visible:outline-none`, meaning ring-2 and ring-primary are always-on classes. Implementation scopes all three to `focus-visible:`, which is better UX (no persistent ring on all interactive elements) but deviates from the literal spec. Confirmed in `HeroBanner.tsx` (both buttons) and `error.tsx` (Thử lại button). Human must decide: keep the better implementation and treat spec wording as an oversight, or follow the spec literally.
+
+### Patches
+
+- [ ] [Review][Patch] loading.tsx skeleton mismatches HeroBanner on mobile height and corner shape [`src/app/(viewer)/home/loading.tsx`] — Two deviations: (1) Skeleton hero uses `min-h-[65vh]` only; HeroBanner uses `min-h-[50vh] md:min-h-[65vh]`, so on mobile the skeleton is 65vh while the real hero is 50vh — visible layout shift. (2) Skeleton hero has `rounded` class; HeroBanner `<section>` uses `overflow-hidden` with no rounded corners — skeleton and content have different corner shapes on load.
+- [ ] [Review][Patch] page.tsx empty-state early return drops the flex wrapper [`src/app/(viewer)/home/page.tsx:11-15`] — When `movies.length === 0`, the code returns a bare `<p>` with no container. The non-empty path wraps everything in `<div className="flex flex-col gap-8 py-8">`. The spec render template shows the wrapper always rendering with the empty-state `<p>` inside it. Missing wrapper on empty path breaks vertical padding/spacing consistency.
+- [ ] [Review][Patch] HeroBanner "Xem ngay" button has no aria-label associating the action with the film title [`src/components/movie/HeroBanner.tsx:38-49`] — Screen reader users hear "Xem ngay" with no movie name; the `<h1>` is nearby but not programmatically linked. Fix: `aria-label={\`Xem ngay: ${title}\`}` on the button.
+- [ ] [Review][Patch] "Thêm vào danh sách" button has no `aria-disabled` despite being intentionally inert [`src/components/movie/HeroBanner.tsx:51-70`] — Spec says this button is static UI with no onClick. Without `aria-disabled="true"`, assistive technology users receive no signal the button is deliberately non-functional.
+- [ ] [Review][Patch] deferred-work.md new entries mix Vietnamese and English mid-bullet inconsistently [`_bmad-output/implementation-artifacts/deferred-work.md`] — Pre-existing entries use English throughout; the new entries added in this story switch mid-sentence to Vietnamese. Direct text correction needed for document consistency.
+- [ ] [Review][Patch] Promise.all rejects on genre fetch failure, showing error page even when movies loaded [`src/app/(viewer)/home/page.tsx:8`] — `await Promise.all([getMovieList(), getGenreList()])` — if `getGenreList()` throws, the whole page renders the error boundary even though `getMovieList()` may have succeeded. Fix: `getGenreList().catch(() => [])` in the Promise.all call so genre failure degrades gracefully (renders with no genre rows) rather than crashing the page.
+- [ ] [Review][Patch] HomeError reset button wiring has no test [`src/app/(viewer)/home/error.tsx`] — The AC states "button 'Thử lại' reset trang"; `error.tsx` wires `onClick={reset}` on the button. No `error.test.tsx` exists. If the `onClick` handler were removed, the AC would silently fail. Fix: add `src/app/(viewer)/home/error.test.tsx` — render `<HomeError error={new Error("test")} reset={mockFn} />`, assert "Thử lại" button is present, assert `mockFn` called on click (RTL + Vitest, same pattern as `page.test.tsx`).
+
+### Deferred
+
+- [x] [Review][Defer] genres/route.ts task marked `[x]` complete but refactor not executed [`src/app/api/genres/route.ts`] — deferred: acknowledged in Implementation Notes (genres route kept inline due to Vitest/unstable_cache incompatibility); entry already exists in deferred-work.md
+- [x] [Review][Defer] getMoviesByQuery backslash escape order bug [`src/lib/movieData.ts`] — deferred: pre-existing — identical escape logic present in `276b525:src/app/api/movies/route.ts` before this story's refactor; not introduced by this change
+- [x] [Review][Defer] next/image mock spreads `fill` boolean prop onto DOM `<img>` (React unknown-prop warning in tests) [`src/components/movie/HeroBanner.test.tsx`] — deferred: pre-existing pattern — same mock shape used in `MovieCard.test.tsx` (Story 2.2) which also passes `fill` to next/image; not introduced here
+
+### Rejected
+
+- **ECH-1 (false):** null/empty genre names causing blank MovieRow title — `fetchAllGenres` has no name filter, but null-named genres produce zero-movie groups that are already eliminated by `.filter((g) => g.movies.length > 0)` in `page.tsx`. The described bad outcome does not reach the render path.
+- **ECH-2 (false):** getMoviesByQuery called with empty string returns all movies — the only caller (`api/movies/route.ts`) already guards `q !== null && q !== ""` before invoking `getMoviesByQuery`. The empty-string path is unreachable in the current codebase.
+- **ECH-4 (false):** poster_url not in next/image remotePatterns — `next.config.ts` has `hostname: "**"` which accepts all HTTPS hosts. No restriction applies.
+- **BH-6 (rejected-low):** HeroBanner.test.tsx does not enforce single-image constraint — asserting image count is future-proofing that requires adding test complexity; fix adds more than a direct correction.
