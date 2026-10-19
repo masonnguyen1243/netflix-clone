@@ -26,7 +26,7 @@ export function SearchBar() {
     let cancelled = false;
     setIsLoading(true);
 
-    fetch(`/api/movies?q=${encodeURIComponent(debouncedQuery)}`)
+    fetch(`/api/movies?q=${encodeURIComponent(debouncedQuery.trim())}`)
       .then((res) => res.json())
       .then((json: { data?: MovieSummary[] }) => {
         if (cancelled) return;
@@ -89,6 +89,7 @@ export function SearchBar() {
         aria-label="Tìm kiếm phim"
         aria-expanded={isOpen}
         aria-controls="search-dropdown"
+        aria-haspopup="listbox"
         aria-busy={isLoading}
         className="w-[200px] motion-safe:focus:w-[400px] motion-safe:transition-[width] motion-safe:duration-200 ease-out bg-surface border border-border rounded-full px-4 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       />

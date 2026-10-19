@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-13-2026 00:00
-last_updated: 10-19-2026 14:30
+last_updated: 10-19-2026 15:10
 project: bmad-landing-page
 project_key: NOKEY
 tracking_system: file-system
@@ -46,7 +46,7 @@ development_status:
   2-1-supabase-seed-movie-api-routes: done
   2-2-moviecard-movierow-components: done
   2-3-home-page-hero-banner-genre-rows: done
-  2-4-global-search-header-bar-search-results-page: review
+  2-4-global-search-header-bar-search-results-page: done
   epic-2-retrospective: optional
 
   epic-3: backlog
