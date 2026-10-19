@@ -46,7 +46,7 @@ development_status:
   2-1-supabase-seed-movie-api-routes: done
   2-2-moviecard-movierow-components: done
   2-3-home-page-hero-banner-genre-rows: done
-  2-4-global-search-header-bar-search-results-page: backlog
+  2-4-global-search-header-bar-search-results-page: ready-for-dev
   epic-2-retrospective: optional
 
   epic-3: backlog
