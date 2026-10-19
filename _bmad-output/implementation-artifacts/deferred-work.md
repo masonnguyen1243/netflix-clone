@@ -83,3 +83,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-3-home-page-hero-banner-genre-rows.md`
   summary: next/image mock in HeroBanner.test.tsx spreads all props (including `fill` boolean) onto DOM img — generates React unknown-prop warning
   evidence: Pre-existing pattern — same mock shape used in MovieCard.test.tsx (Story 2.2). Fix: destructure fill, sizes, priority out of spread before passing rest to img.
+
+## Deferred from: code review of spec-2-4-global-search-header-bar-search-results-page (2026-10-19)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-4-global-search-header-bar-search-results-page.md`
+  summary: Thumbnail in SearchBar dropdown does not guard against empty `poster_url` — next/image throws for empty src
+  evidence: Pre-existing concern applicable to all movie components (MovieCard, HeroBanner). `MovieSummary.poster_url` is typed as `string` (not optional) and the DB should always have it. Fix: add `src={movie.poster_url || '/placeholder.jpg'}` fallback when a placeholder asset exists.

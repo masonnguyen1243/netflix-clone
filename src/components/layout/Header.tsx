@@ -1,5 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { SearchBar } from "@/components/layout/SearchBar";
 
 export default function Header() {
   return (
@@ -14,14 +15,8 @@ export default function Header() {
         </Link>
       </div>
 
-      {/* Search — desktop only, placeholder (disabled until Story 2.4) */}
-      <div className="flex-1 flex justify-center px-4">
-        <input
-          disabled
-          placeholder="Tìm kiếm phim..."
-          className="hidden md:flex w-full max-w-md bg-background border border-border rounded-full px-4 py-1.5 text-sm text-muted-foreground placeholder:text-muted focus:outline-none cursor-not-allowed"
-        />
-      </div>
+      {/* Search — desktop only */}
+      <SearchBar />
 
       {/* Nav links (desktop only) + UserButton */}
       <nav aria-label="Điều hướng chính" className="flex items-center gap-6">
