@@ -44,15 +44,17 @@ export default async function MovieDetailPage({ params }: Props) {
           {/* Poster + metadata row */}
           <div className="flex gap-6 items-start">
             {/* Poster */}
+            {movie.poster_url && (
             <div className="relative shrink-0 w-[160px] h-[240px] rounded-lg overflow-hidden shadow-lg">
               <Image
                 src={movie.poster_url}
-                alt={`${movie.title} poster`}
+                alt={`${movie.title ?? ""} poster`}
                 fill
                 style={{ objectFit: "cover" }}
                 sizes="160px"
               />
             </div>
+            )}
 
             {/* Text metadata */}
             <div className="flex flex-col gap-3 pt-2">
@@ -61,13 +63,13 @@ export default async function MovieDetailPage({ params }: Props) {
               </h1>
 
               <p className="text-muted-foreground text-sm">
-                {movie.year}
+                {movie.year ?? ""}
                 {movie.director ? ` · ${movie.director}` : ""}
                 {movie.rating != null ? ` · ⭐ ${movie.rating.toFixed(1)}` : ""}
               </p>
 
               <p className="text-foreground text-sm leading-relaxed line-clamp-4">
-                {movie.description}
+                {movie.description ?? ""}
               </p>
 
               {/* Genre badges */}
@@ -126,7 +128,7 @@ export default async function MovieDetailPage({ params }: Props) {
             <div className="aspect-video w-full rounded-lg overflow-hidden">
               <iframe
                 src={movie.trailer_url}
-                title={`${movie.title} trailer`}
+                title={`${movie.title ?? ""} trailer`}
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

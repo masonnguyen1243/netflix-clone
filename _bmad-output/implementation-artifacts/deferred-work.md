@@ -103,3 +103,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-4-global-search-header-bar-search-results-page.md`
   summary: No shared `next/image` mock setup file — mock duplicated independently in SearchBar.test.tsx and page.test.tsx
   evidence: Pre-existing pattern across all test files in project (HeroBanner.test.tsx, MovieCard.test.tsx). Fix requires new vitest.setup.ts with shared mock; out of scope for this story.
+
+## Deferred from: code review of spec-3-1-movie-detail-page (2026-10-20)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-movie-detail-page.md`
+  summary: iframe in movie detail page missing sandbox attribute — embeds arbitrary YouTube URLs without content isolation
+  evidence: Spec intent says "iframe thông thường" with no sandbox requirement; adding sandbox is a security improvement outside the captured intent. Revisit when iframe security policy is standardized across the project.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-movie-detail-page.md`
+  summary: getSimilarMovies results are non-deterministic — no ORDER BY clause on Supabase query
+  evidence: Supabase/Postgres returns rows in undefined order without .order(); "Phim tương tự" section can vary between ISR refreshes. Spec does not require ordering; add .order("id") or order by rating when query ordering is standardized.

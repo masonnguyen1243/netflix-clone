@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ---- hoisted mocks ----
-const { mockFrom, mockSelect, mockIn, mockNeq, mockLimit, mockUnstableCache } = vi.hoisted(() => {
+const { mockFrom, mockSelect, mockIn, mockNeq, mockLimit, mockSingle, mockEq, mockUnstableCache } = vi.hoisted(() => {
   const mockLimit = vi.fn();
   const mockNeq = vi.fn();
   const mockIn = vi.fn();
   const mockSelect = vi.fn();
   const mockFrom = vi.fn();
+  const mockSingle = vi.fn();
+  const mockEq = vi.fn();
   const mockUnstableCache = vi.fn();
-  return { mockFrom, mockSelect, mockIn, mockNeq, mockLimit, mockUnstableCache };
+  return { mockFrom, mockSelect, mockIn, mockNeq, mockLimit, mockSingle, mockEq, mockUnstableCache };
 });
 
 vi.mock("@/lib/supabase/anon", () => ({
@@ -28,6 +30,75 @@ function buildSimilarChain(result: { data: unknown; error: unknown }) {
   mockSelect.mockReturnValue({ in: mockIn });
   mockFrom.mockReturnValue({ select: mockSelect });
 }
+
+function buildMovieByIdChain(result: { data: unknown; error: unknown }) {
+  mockSingle.mockResolvedValue(result);
+  mockEq.mockReturnValue({ single: mockSingle });
+  mockSelect.mockReturnValue({ eq: mockEq });
+  mockFrom.mockReturnValue({ select: mockSelect });
+}
+
+describe("getMovieById / fetchMovieById", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
+    // Pass unstable_cache through so fetchMovieById runs directly
+    mockUnstableCache.mockImplementation(
+      (fn: (...args: unknown[]) => Promise<unknown>) =>
+        (...args: unknown[]) =>
+          fn(...args)
+    );
+  });
+
+  it("maps a Supabase row with genres join to Movie shape", async () => {
+    const ROW = {
+      id: "uuid-1",
+      title: "Inception",
+      description: "A thief.",
+      poster_url: "/p.jpg",
+      backdrop_url: "/b.jpg",
+      trailer_url: "https://yt.com/embed/abc",
+      video_url: "/v.mp4",
+      year: 2010,
+      rating: 8.8,
+      cast: "DiCaprio",
+      director: "Nolan",
+      movie_genres: [
+        { genres: { id: "g1", name: "Sci-Fi" } },
+        { genres: null }, // should be filtered out
+      ],
+    };
+
+    buildMovieByIdChain({ data: ROW, error: null });
+
+    const { getMovieById } = await import("./movieData");
+    const result = await getMovieById("uuid-1");
+
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe("uuid-1");
+    expect(result!.title).toBe("Inception");
+    expect(result!.genres).toEqual([{ id: "g1", name: "Sci-Fi" }]);
+  });
+
+  it("returns null when Supabase returns an error", async () => {
+    buildMovieByIdChain({ data: null, error: { message: "Not found" } });
+
+    const { getMovieById } = await import("./movieData");
+    const result = await getMovieById("nonexistent");
+
+    expect(result).toBeNull();
+  });
+
+  it("returns null when Supabase returns no data", async () => {
+    buildMovieByIdChain({ data: null, error: null });
+
+    const { getMovieById } = await import("./movieData");
+    const result = await getMovieById("unknown");
+
+    expect(result).toBeNull();
+  });
+});
 
 describe("getSimilarMovies", () => {
   beforeEach(() => {

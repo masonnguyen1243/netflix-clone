@@ -4,14 +4,21 @@ export async function GET(
   _: Request,
   { params }: { params: { id: string } }
 ) {
-  const movie = await getMovieById(params.id);
+  try {
+    const movie = await getMovieById(params.id);
 
-  if (!movie) {
+    if (!movie) {
+      return Response.json(
+        { error: "Không tìm thấy phim", code: "NOT_FOUND" },
+        { status: 404 }
+      );
+    }
+
+    return Response.json({ data: movie });
+  } catch {
     return Response.json(
-      { error: "Không tìm thấy phim", code: "NOT_FOUND" },
-      { status: 404 }
+      { error: "Lỗi máy chủ", code: "INTERNAL_ERROR" },
+      { status: 500 }
     );
   }
-
-  return Response.json({ data: movie });
 }

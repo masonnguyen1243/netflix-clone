@@ -63,4 +63,17 @@ describe("GET /api/movies/[id]", () => {
       code: "NOT_FOUND",
     });
   });
+
+  it("returns HTTP 500 with { code: 'INTERNAL_ERROR' } when getMovieById throws", async () => {
+    mockGetMovieById.mockRejectedValue(new Error("DB connection failed"));
+
+    const { GET } = await import("./route");
+    const res = await GET(new Request("http://localhost/api/movies/uuid-1"), {
+      params: { id: "uuid-1" },
+    });
+
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body).toMatchObject({ code: "INTERNAL_ERROR" });
+  });
 });

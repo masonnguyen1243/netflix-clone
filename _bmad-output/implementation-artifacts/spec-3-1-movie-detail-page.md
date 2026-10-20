@@ -101,9 +101,23 @@ context: []
 | `≥3 similar movies` minimum floor required | false | Spec says section renders if `similarMovies.length > 0` — no minimum of 3 in spec or intent. | false — reviewer invented requirement |
 | Cast outside `max-w-[600px]` | false | Cast block has its own `max-w-[600px]` class directly on its wrapper; correctly constrained. | false |
 | `getSimilarMovies` not cached — spec claim false | false | Spec says "cached at caller level" — caller is `page.tsx` with ISR `revalidate=60`; whole render including getSimilarMovies is covered by ISR. | false |
+| `getMovieById` creates new `unstable_cache` wrapper per call | false | Next.js `unstable_cache` deduplicates by cache key string, not function reference; key `["movie", id]` is unique per movie and cache hits correctly. No functional bug. | false — rejected |
+| `page.test.tsx` missing `import React` | false | `tsconfig.json` uses `"jsx": "react-jsx"` (automatic JSX transform); no explicit React import needed. Tests pass. | false — rejected |
+| `movieData.test.ts` dynamic import missing `vi.resetModules()` | false | `movieData.test.ts` uses module-level `vi.mock`, not dynamic import per-test; mock references are stable. | false — rejected |
+| Spec verification commands missing 2 test suites | medium | `pnpm vitest run src/app/api/movies` excluded `page.test.tsx` and `movieData.test.ts`. Patched: updated Verification commands to include `src/lib/movieData`. | patch → fixed |
+| `movie.year` no null guard — renders "null" | medium | `page.tsx:64` renders `{movie.year}` directly; DB may return null. Patched: added `?? ""`. | patch → fixed |
+| `movie.poster_url` no null guard — next/image throws for null src | medium | `page.tsx:48` passes `movie.poster_url` to `next/image` without null check. Patched: wrapped in conditional. | patch → fixed |
+| `movie.description` no null guard — renders "null" | low | `page.tsx:70` renders `{movie.description}` directly. Patched: added `?? ""`. | patch → fixed |
+| `movie.title` no null guard in iframe title | low | `page.tsx:129` produces "null trailer". Patched: `movie.title ?? ""`. | patch → fixed |
+| `route.ts` no error handling for exceptions | medium | No try/catch; `getMovieById` throwing produces unformatted Next.js 500. Patched: try/catch returning `{ code: "INTERNAL_ERROR" }` 500. Test added. | patch → fixed |
+| `fetchMovieById` internal logic has no test | medium | All consumers mock `getMovieById`; actual Supabase query and genre-join mapping untested. Patched: added `describe("getMovieById / fetchMovieById")` in `movieData.test.ts` with 3 tests. | patch → fixed |
+| `.neq("movie_id", ...)` vs spec `.neq("id", ...)` | false | Code uses `.neq("movie_id", excludeId)` on `movie_genres` join table — semantically correct. Spec description was loose; code behavior is right. | false — rejected |
+| `mg.genres` could be Supabase array | false | Supabase nested join returns `genres` as single object per `movie_genres` row (many-to-one). `filter(Boolean)` handles nulls. | false — rejected |
+| `getSimilarMovies` non-deterministic without ORDER BY | low | No ordering clause; results vary between cache misses. Spec does not require ordering. | defer |
+| `iframe` referrerPolicy missing | low | Privacy improvement; spec says "iframe thông thường" — not required by intent. | defer |
 
 ## Verification
 
 **Commands:**
-- `pnpm vitest run src/app/api/movies` -- expected: all tests pass
+- `pnpm vitest run src/app/api/movies src/lib/movieData` -- expected: all tests pass
 - `pnpm tsc --noEmit` -- expected: no type errors
