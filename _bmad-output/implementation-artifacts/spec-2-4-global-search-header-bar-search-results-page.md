@@ -4,7 +4,7 @@ type: 'feature'
 created: '2026-10-19'
 status: 'done'
 route: 'dispatch'
-review_loop_iteration: 0
+review_loop_iteration: 1
 baseline_commit: '4871f6973acf82066cdc54344aa07f9320497b5a'
 context: []
 ---
@@ -83,6 +83,31 @@ context: []
 - Given query không có kết quả, when fetch xong, then "Chưa có phim nào. Hãy khám phá thêm →"
 - Given query rỗng khi vào /search, when render, then "Nhập tên phim để tìm kiếm"
 - Given API thất bại, when fetch throws, then "Không tải được. Thử lại." + button retry
+
+### Review Findings
+
+- [x] [Review][Patch] Missing `aria-haspopup="listbox"` on combobox input [src/components/layout/SearchBar.tsx:88]
+- [x] [Review][Patch] "Xem tất cả" click behavior not verified by any test [src/components/layout/SearchBar.test.tsx]
+- [x] [Review][Patch] Fetch URL uses non-trimmed `debouncedQuery` — inconsistency with page.tsx pattern [src/components/layout/SearchBar.tsx:29]
+- [x] [Review][Patch] `isLoading` initial `true` state not verified by tests — timer-advance in test bypasses sync check [src/app/(viewer)/search/page.test.tsx]
+- [x] [Review][Patch] `focus:outline-none` used instead of spec-required `focus-visible:outline-none` on search page input [src/app/(viewer)/search/page.tsx:72]
+- [x] [Review][Patch] No test verifies result item href attribute to `/movie/:id` [src/components/layout/SearchBar.test.tsx]
+- [x] [Review][Defer] Back/forward navigation desync — `searchParams` changes while mounted do not re-sync `query` state [src/app/(viewer)/search/page.tsx:14] — deferred: fix requires loop-safe useEffect that re-reads searchParams; complex interaction with existing URL-sync effect
+- [x] [Review][Defer] Spurious `router.replace` on mount when URL already correct [src/app/(viewer)/search/page.tsx:51] — deferred: spec triage row 12 explicitly accepted this trade-off; guard adds complexity
+- [x] [Review][Defer] No shared `next/image` mock setup file — mock duplicated across SearchBar.test.tsx and page.test.tsx — deferred: pre-existing pattern across all test files in project; fix requires new vitest setup file outside this story's scope
+
+**Rejected:**
+- `res.ok` not checked in SearchBar fetch — false: spec triage row 9 accepted; project API returns `{error}` not `{data:[...]}` on 5xx; `.catch()` handles invalid JSON; inconsistency with page.tsx noted but low practical risk
+- `ease-out` outside `motion-safe:` prefix — false: `ease-out` sets `transition-timing-function` only; without `transition-property` (gated by `motion-safe:transition-[width]`) it has zero effect for reduced-motion users
+- `searchUrl` computed from `query` not `debouncedQuery` — false: spec triage row 7 accepted; spec intent is "navigate with current input value"
+- `isLoading` aria-busy with no visual indicator — false: spec row 3 explicitly defers dropdown loading skeleton
+- Spec triage log duplicate row numbers — rejected: fix would edit the spec under review
+- `loading.tsx` `bg-surface` makes skeleton indistinguishable — false: `animate-pulse` provides animation-based visual distinction
+- `screen.getAllByRole("link")` fragile count assertion — false: isolated unit test; no layout anchor elements in rendered tree
+- `useDebounce` delay in dependency array undocumented — rejected: low + speculative harm; all callers use literal 300; everyday use unaffected
+- Touch-outside not closing dropdown (no touchstart) — rejected: maybe-false + low; browsers synthesize `mousedown` from touch; SearchBar hidden on mobile
+- `useDebounce` delay=NaN uses 0 delay — rejected: speculative; all callers pass literal 300
+- Spec Code Map still specifies `<a href>Xem tất cả` vs `<button>` implementation — rejected: fix edits frozen spec block
 
 ## Implementation Notes
 

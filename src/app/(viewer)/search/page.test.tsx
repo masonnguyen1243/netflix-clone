@@ -192,6 +192,20 @@ describe("SearchPage", () => {
     });
   });
 
+  it("shows loading skeletons on initial render when ?q= param is present", () => {
+    mockSearchParamsQ = "action";
+    global.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+
+    const { container } = render(<SearchPage />);
+
+    // Synchronous — no timers advanced — isLoading must be true from initialization
+    const skeletons = container.querySelectorAll(".animate-pulse");
+    expect(skeletons.length).toBeGreaterThan(0);
+    expect(
+      screen.queryByText("Chưa có phim nào. Hãy khám phá thêm →")
+    ).not.toBeInTheDocument();
+  });
+
   it("shows loading skeletons while fetching", async () => {
     mockSearchParamsQ = "action";
 

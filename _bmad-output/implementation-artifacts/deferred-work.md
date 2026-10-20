@@ -89,3 +89,27 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-4-global-search-header-bar-search-results-page.md`
   summary: Thumbnail in SearchBar dropdown does not guard against empty `poster_url` — next/image throws for empty src
   evidence: Pre-existing concern applicable to all movie components (MovieCard, HeroBanner). `MovieSummary.poster_url` is typed as `string` (not optional) and the DB should always have it. Fix: add `src={movie.poster_url || '/placeholder.jpg'}` fallback when a placeholder asset exists.
+
+## Deferred from: code review of spec-2-4 round 2 (2026-10-19)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-4-global-search-header-bar-search-results-page.md`
+  summary: Back/forward navigation desync — `searchParams` changes (browser history nav) do not re-sync `query` state in SearchPage
+  evidence: `query` initialized once from `searchParams.get("q")` with no reactive effect on searchParams changes. Fix needs loop-safe effect watching searchParams; complex interaction with existing URL-sync effect (could cause infinite replace loop).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-4-global-search-header-bar-search-results-page.md`
+  summary: Spurious `router.replace` on mount when URL already correct in SearchPage
+  evidence: URL-sync effect fires on mount calling `router.replace` with the same URL already in the address bar. Spec triage row 12 explicitly accepted; guard (`if debouncedQuery !== searchParams.get("q")`) adds complexity beyond the accepted trade-off.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-4-global-search-header-bar-search-results-page.md`
+  summary: No shared `next/image` mock setup file — mock duplicated independently in SearchBar.test.tsx and page.test.tsx
+  evidence: Pre-existing pattern across all test files in project (HeroBanner.test.tsx, MovieCard.test.tsx). Fix requires new vitest.setup.ts with shared mock; out of scope for this story.
+
+## Deferred from: code review of spec-3-1-movie-detail-page (2026-10-20)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-movie-detail-page.md`
+  summary: iframe in movie detail page missing sandbox attribute — embeds arbitrary YouTube URLs without content isolation
+  evidence: Spec intent says "iframe thông thường" with no sandbox requirement; adding sandbox is a security improvement outside the captured intent. Revisit when iframe security policy is standardized across the project.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-movie-detail-page.md`
+  summary: getSimilarMovies results are non-deterministic — no ORDER BY clause on Supabase query
+  evidence: Supabase/Postgres returns rows in undefined order without .order(); "Phim tương tự" section can vary between ISR refreshes. Spec does not require ordering; add .order("id") or order by rating when query ordering is standardized.

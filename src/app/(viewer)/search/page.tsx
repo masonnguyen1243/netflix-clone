@@ -69,7 +69,7 @@ export default function SearchPage() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Tìm kiếm phim..."
           aria-label="Tìm kiếm phim trên trang kết quả"
-          className="w-full bg-surface border border-border rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="w-full bg-surface border border-border rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         />
       </div>
 

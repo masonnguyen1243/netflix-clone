@@ -256,6 +256,68 @@ describe("SearchBar", () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
 
+  it("navigates to search page and closes dropdown when 'Xem tất cả' is clicked", async () => {
+    const movies = makeMovies(3);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: movies }),
+    } as Response);
+
+    render(<SearchBar />);
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "phim hay" } });
+
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("listbox")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText("Xem tất cả"));
+
+    expect(mockPush).toHaveBeenCalledWith(
+      `/search?q=${encodeURIComponent("phim hay")}`
+    );
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+  });
+
+  it("renders result items with correct href linking to movie detail page", async () => {
+    const movies = makeMovies(3);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: movies }),
+    } as Response);
+
+    render(<SearchBar />);
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "Movie" } });
+
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("listbox")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("option", { name: /Movie 1/ })).toHaveAttribute(
+      "href",
+      "/movie/movie-1"
+    );
+    expect(screen.getByRole("option", { name: /Movie 2/ })).toHaveAttribute(
+      "href",
+      "/movie/movie-2"
+    );
+    expect(screen.getByRole("option", { name: /Movie 3/ })).toHaveAttribute(
+      "href",
+      "/movie/movie-3"
+    );
+  });
+
   it("does not call router.push when Enter is pressed on whitespace-only input", () => {
     render(<SearchBar />);
     const input = screen.getByRole("combobox");
