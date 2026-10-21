@@ -123,3 +123,17 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-3-2-youtubeplayer-component-video-player-page.md`
   summary: params.id trong progress API route không validate là UUID trước khi upsert vào watch_history
   evidence: maybe-false — Supabase FK constraint trên movie_id sẽ reject nếu invalid (không phải UUID trong movies table); pre-existing pattern trong codebase (các route khác cũng không validate params).
+
+## Deferred from: code review of spec-4-1-watchlist-api-watchlistbutton-component (2026-10-21)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
+  summary: Unauthenticated WatchlistButton click hiển thị cùng toast "Không tải được" như server error 500, không hướng dẫn user đăng nhập
+  evidence: POST /api/watchlist/[id] trả 401 khi chưa auth; WatchlistButton chỉ kiểm tra res.ok (false cho 401); hiển thị generic error toast. Spec I/O matrix không phân biệt error toast cho 401 vs 500; cần design decision cho sign-in prompt UX — để Story 4.4 hoặc Epic 5 auth flow quyết định.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
+  summary: POST /api/watchlist/[id] race condition — hai concurrent POST cho cùng user+movie có thể hit INSERT branch đồng thời, gây unique-constraint violation và trả 500
+  evidence: maybe-false (medium nếu xảy ra) — SELECT rồi INSERT không atomic; duplicate INSERT throws Supabase error → 500; rất hiếm trên single-session use nhưng có thể xảy ra với multiple tabs. Fix: upsert với ON CONFLICT hoặc catch unique-violation error code. Để Epic 4 story sau nếu cần hardening.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
+  summary: WatchlistButton component không có React unit tests cho optimistic update, rollback, và toast logic
+  evidence: Spec chỉ yêu cầu route tests; component logic (handleClick, state rollback, aria-label toggling, toast messages) hoàn toàn chưa được test ở component level. Để Story 4.x hoặc dedicated test story.

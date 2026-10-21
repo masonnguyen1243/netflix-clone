@@ -1,12 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import type { MovieSummary } from "@/types";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface HeroBannerProps {
   movie: MovieSummary;
 }
 
 export function HeroBanner({ movie }: HeroBannerProps) {
-  const { title, poster_url } = movie;
+  const { id, title, poster_url } = movie;
 
   return (
     <section className="relative min-h-[50vh] md:min-h-[65vh] overflow-hidden">
@@ -49,27 +52,8 @@ export function HeroBanner({ movie }: HeroBannerProps) {
               Xem ngay
             </button>
 
-            {/* Thêm vào danh sách (static) */}
-            <button
-              className="px-4 py-2 rounded font-semibold flex items-center gap-2 border border-foreground/60 text-foreground bg-transparent hover:bg-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none motion-safe:transition-colors"
-              type="button"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-              </svg>
-              Thêm vào danh sách
-            </button>
+            {/* Watchlist button */}
+            <WatchlistButton movieId={id} />
           </div>
         </div>
       </div>

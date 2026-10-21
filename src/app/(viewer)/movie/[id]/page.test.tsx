@@ -4,16 +4,31 @@ import "@testing-library/jest-dom";
 import type { Movie, MovieSummary } from "@/types";
 
 // ---- hoisted mocks ----
-const { mockGetMovieById, mockGetSimilarMovies, mockNotFound } = vi.hoisted(() => {
+const { mockGetMovieById, mockGetSimilarMovies, mockNotFound, mockAuth, mockMaybySingle, mockEq, mockSelect, mockFrom } = vi.hoisted(() => {
   const mockGetMovieById = vi.fn();
   const mockGetSimilarMovies = vi.fn();
   const mockNotFound = vi.fn(() => { throw new Error("NEXT_NOT_FOUND"); });
-  return { mockGetMovieById, mockGetSimilarMovies, mockNotFound };
+  const mockAuth = vi.fn();
+  const mockMaybySingle = vi.fn();
+  const mockEq = vi.fn();
+  const mockSelect = vi.fn();
+  const mockFrom = vi.fn();
+  return { mockGetMovieById, mockGetSimilarMovies, mockNotFound, mockAuth, mockMaybySingle, mockEq, mockSelect, mockFrom };
 });
 
 vi.mock("@/lib/movieData", () => ({
   getMovieById: mockGetMovieById,
   getSimilarMovies: mockGetSimilarMovies,
+}));
+
+vi.mock("@clerk/nextjs/server", () => ({
+  auth: mockAuth,
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createServerClient: vi.fn(() => ({
+    from: mockFrom,
+  })),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -38,7 +53,15 @@ vi.mock("@/components/movie/MovieCard", () => ({
 }));
 
 vi.mock("@/components/movie/WatchlistButton", () => ({
-  WatchlistButton: () => <button disabled>Thêm vào danh sách</button>,
+  WatchlistButton: ({ movieId, initialInWatchlist }: { movieId: string; initialInWatchlist?: boolean }) => (
+    <button
+      disabled
+      data-movie-id={movieId}
+      data-initial-in-watchlist={String(initialInWatchlist ?? false)}
+    >
+      Thêm vào danh sách
+    </button>
+  ),
 }));
 
 import MovieDetailPage from "./page";
@@ -66,6 +89,8 @@ describe("MovieDetailPage", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockGetSimilarMovies.mockResolvedValue([]);
+    // Default: unauthenticated — no Supabase watchlist query
+    mockAuth.mockResolvedValue({ userId: null, getToken: vi.fn() });
   });
 
   it("calls notFound() when movie does not exist", async () => {
@@ -129,5 +154,39 @@ describe("MovieDetailPage", () => {
     render(await MovieDetailPage({ params: { id: "uuid-1" } }));
 
     expect(screen.queryByText("Phim tương tự")).not.toBeInTheDocument();
+  });
+
+  it("passes initialInWatchlist=true to WatchlistButton when authenticated user has movie in watchlist", async () => {
+    mockGetMovieById.mockResolvedValue(MOVIE);
+    mockAuth.mockResolvedValue({ userId: "user-1", getToken: vi.fn().mockResolvedValue("token") });
+
+    // Supabase returns a matching watchlist row
+    mockMaybySingle.mockResolvedValue({ data: { id: "wl-row-1" }, error: null });
+    mockEq.mockReturnValue({ eq: mockEq, maybeSingle: mockMaybySingle });
+    mockSelect.mockReturnValue({ eq: mockEq });
+    mockFrom.mockReturnValue({ select: mockSelect });
+
+    render(await MovieDetailPage({ params: { id: "uuid-1" } }));
+
+    const btn = screen.getByRole("button", { name: /Thêm vào danh sách/i });
+    expect(btn).toHaveAttribute("data-movie-id", "uuid-1");
+    expect(btn).toHaveAttribute("data-initial-in-watchlist", "true");
+  });
+
+  it("passes initialInWatchlist=false to WatchlistButton when authenticated user has movie NOT in watchlist", async () => {
+    mockGetMovieById.mockResolvedValue(MOVIE);
+    mockAuth.mockResolvedValue({ userId: "user-1", getToken: vi.fn().mockResolvedValue("token") });
+
+    // Supabase returns no row
+    mockMaybySingle.mockResolvedValue({ data: null, error: null });
+    mockEq.mockReturnValue({ eq: mockEq, maybeSingle: mockMaybySingle });
+    mockSelect.mockReturnValue({ eq: mockEq });
+    mockFrom.mockReturnValue({ select: mockSelect });
+
+    render(await MovieDetailPage({ params: { id: "uuid-1" } }));
+
+    const btn = screen.getByRole("button", { name: /Thêm vào danh sách/i });
+    expect(btn).toHaveAttribute("data-movie-id", "uuid-1");
+    expect(btn).toHaveAttribute("data-initial-in-watchlist", "false");
   });
 });

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { MovieSummary } from "@/types";
 import { MovieCardSkeleton } from "./MovieCardSkeleton";
+import { WatchlistButton } from "./WatchlistButton";
 
 interface MovieCardProps {
   movie: MovieSummary;
@@ -50,22 +51,12 @@ export function MovieCard({ movie }: MovieCardProps) {
         )}
       </div>
 
-      {/* Bookmark icon (static, no onClick) */}
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 motion-safe:transition-opacity motion-safe:duration-150 text-foreground">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-        </svg>
+      {/* Watchlist button at top-right of card */}
+      <div
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 motion-safe:transition-opacity motion-safe:duration-150"
+        onClick={(e) => e.preventDefault()}
+      >
+        <WatchlistButton movieId={id} />
       </div>
     </a>
   );

@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { getMovieById, getSimilarMovies } from "@/lib/movieData";
+import { createServerClient } from "@/lib/supabase/server";
 import { MovieCard } from "@/components/movie/MovieCard";
 import { WatchlistButton } from "@/components/movie/WatchlistButton";
 
@@ -20,6 +22,22 @@ export default async function MovieDetailPage({ params }: Props) {
 
   const genreIds = movie.genres.map((g) => g.id);
   const similarMovies = await getSimilarMovies(genreIds, movie.id);
+
+  // Fetch initial watchlist state for authenticated users
+  let initialInWatchlist = false;
+  const { userId, getToken } = await auth();
+  if (userId) {
+    const supabase = createServerClient(() =>
+      getToken({ template: "supabase" })
+    );
+    const { data: watchlistEntry } = await supabase
+      .from("watchlist")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("movie_id", params.id)
+      .maybeSingle();
+    initialInWatchlist = !!watchlistEntry;
+  }
 
   return (
     <main className="relative min-h-screen">
@@ -105,7 +123,7 @@ export default async function MovieDetailPage({ params }: Props) {
                   </svg>
                   Xem ngay
                 </Link>
-                <WatchlistButton />
+                <WatchlistButton movieId={movie.id} initialInWatchlist={initialInWatchlist} />
               </div>
             </div>
           </div>
