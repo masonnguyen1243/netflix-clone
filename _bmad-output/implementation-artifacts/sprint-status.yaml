@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-13-2026 00:00
-last_updated: 10-20-2026 09:40
+last_updated: 10-21-2026 08:54
 project: bmad-landing-page
 project_key: NOKEY
 tracking_system: file-system
@@ -51,7 +51,7 @@ development_status:
 
   epic-3: in-progress
   3-1-movie-detail-page: done
-  3-2-youtubeplayer-component-video-player-page: backlog
+  3-2-youtubeplayer-component-video-player-page: review
   3-3-watch-progress-save-api: backlog
   epic-3-retrospective: optional
 
