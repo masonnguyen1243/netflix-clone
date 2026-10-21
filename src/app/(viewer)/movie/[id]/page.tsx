@@ -30,13 +30,14 @@ export default async function MovieDetailPage({ params }: Props) {
     const supabase = createServerClient(() =>
       getToken({ template: "supabase" })
     );
-    const { data: watchlistEntry } = await supabase
+    const { data: watchlistEntry, error: watchlistError } = await supabase
       .from("watchlist")
       .select("id")
       .eq("user_id", userId)
       .eq("movie_id", params.id)
       .maybeSingle();
-    initialInWatchlist = !!watchlistEntry;
+    if (watchlistError) console.error("[watchlist prefetch]", watchlistError);
+    else initialInWatchlist = !!watchlistEntry;
   }
 
   return (

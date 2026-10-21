@@ -125,3 +125,9 @@ baseline_commit: '772574f6dcbbcbd3b9df79f0ffd362649ef56796'
 **Commands:**
 - `npm run build` — expected: no TypeScript errors, clean build
 - `npm test -- --testPathPattern="watchlist"` — expected: all watchlist route tests pass
+
+### Review Findings
+
+- [x] [Review][Patch] Toggle route test missing argument assertions — DELETE eq column names and INSERT payload not asserted; swapped args would silently delete wrong row or insert malformed row [src/app/api/watchlist/[id]/route.test.ts:97-127]
+- [x] [Review][Patch] Movie Detail page silently ignores watchlist query error — `const { data: watchlistEntry }` discards `error`; DB failure causes wrong initial WatchlistButton state for authenticated users [src/app/(viewer)/movie/[id]/page.tsx:33]
+- [x] [Review][Defer] maybeSingle() assumes UNIQUE constraint on watchlist(user_id, movie_id) [src/app/api/watchlist/[id]/route.ts:26-31] — deferred: medium if true; settle by verifying DB schema has UNIQUE(user_id, movie_id) on watchlist table

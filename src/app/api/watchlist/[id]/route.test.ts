@@ -92,6 +92,7 @@ describe("POST /api/watchlist/[id]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toMatchObject({ data: { movieId: "movie-1", inWatchlist: true } });
+    expect(mockInsert).toHaveBeenCalledWith({ user_id: "user-1", movie_id: "movie-1" });
   });
 
   it("DELETEs when movie is already in watchlist → inWatchlist: false", async () => {
@@ -124,6 +125,8 @@ describe("POST /api/watchlist/[id]", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toMatchObject({ data: { movieId: "movie-1", inWatchlist: false } });
+    expect(mockDeleteEqFirst).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mockDeleteEqFinal).toHaveBeenCalledWith("movie_id", "movie-1");
   });
 
   it("returns HTTP 500 when Supabase throws an error", async () => {

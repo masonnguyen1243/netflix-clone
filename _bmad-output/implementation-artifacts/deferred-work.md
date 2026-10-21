@@ -141,3 +141,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
   summary: getToken({ template: 'supabase' }) trong các watchlist routes không guard trường hợp trả null khi Clerk JWT template chưa cấu hình
   evidence: maybe-false (medium nếu xảy ra) — null token khiến createServerClient factory trả null; hành vi phụ thuộc vào implementation của @/lib/supabase/server và RLS config; nếu Supabase dùng anon key thay vì JWT, RLS có thể expose hoặc block data sai. Pre-existing pattern trong toàn bộ codebase (history route dùng cùng approach). Fix: guard token !== null trước khi tạo client; yêu cầu thay đổi pattern toàn project.
+
+## Deferred from: code review of spec-4-1-watchlist-api-watchlistbutton-component round 2 (2026-10-21)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
+  summary: maybeSingle() assumes UNIQUE constraint on watchlist(user_id, movie_id); nếu duplicate rows tồn tại, throws PGRST116 và POST /api/watchlist/[id] returns 500
+  evidence: maybe-false (medium nếu xảy ra) — maybeSingle() throws khi nhận >1 row; schema watchlist không có trong diff; nếu không có UNIQUE constraint, duplicate rows sẽ khiến mọi toggle call trả 500. Phân biệt với defer L (race condition) vốn giả định UNIQUE constraint tồn tại; finding này hỏi constraint có tồn tại không. Settle bằng cách kiểm tra DB schema UNIQUE(user_id, movie_id) trên bảng watchlist.
