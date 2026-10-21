@@ -113,3 +113,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-3-1-movie-detail-page.md`
   summary: getSimilarMovies results are non-deterministic — no ORDER BY clause on Supabase query
   evidence: Supabase/Postgres returns rows in undefined order without .order(); "Phim tương tự" section can vary between ISR refreshes. Spec does not require ordering; add .order("id") or order by rating when query ordering is standardized.
+
+## Deferred from: code review of spec-3-2-youtubeplayer-component-video-player-page (2026-10-21)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-2-youtubeplayer-component-video-player-page.md`
+  summary: WatchPage server component không có try/catch quanh auth() call — Clerk service failure gây 500 thay vì graceful fallback với progress_seconds=0
+  evidence: api/movies/[id]/route.ts trong cùng PR wraps auth() trong try/catch; page.tsx thì không. Architectural decision: Next.js error.tsx là boundary hiện tại; thêm try/catch hay không phụ thuộc vào Clerk failure tolerance policy của project.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-2-youtubeplayer-component-video-player-page.md`
+  summary: params.id trong progress API route không validate là UUID trước khi upsert vào watch_history
+  evidence: maybe-false — Supabase FK constraint trên movie_id sẽ reject nếu invalid (không phải UUID trong movies table); pre-existing pattern trong codebase (các route khác cũng không validate params).
