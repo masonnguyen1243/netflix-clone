@@ -11,14 +11,16 @@ declare global {
 }
 
 export function extractVideoId(videoUrl: string): string {
+  if (!videoUrl) return "";
   try {
     const url = new URL(videoUrl);
     const v = url.searchParams.get("v");
     if (v) return v;
+    return "";
   } catch {
-    // not a URL, use as-is
+    // not a URL — treat as bare video ID
+    return videoUrl;
   }
-  return videoUrl;
 }
 
 interface Props {
@@ -35,15 +37,19 @@ export default function YouTubePlayer({ videoId, initialSeconds, onTimeUpdate }:
 
   useEffect(() => {
     const resolvedId = extractVideoId(videoId);
+    if (!resolvedId) return;
+
+    let cancelled = false;
 
     function initPlayer() {
-      if (!divRef.current) return;
+      if (!divRef.current || cancelled) return;
       playerRef.current = new window.YT.Player(divRef.current, {
         videoId: resolvedId,
         playerVars: { autoplay: 1, controls: 0, rel: 0, modestbranding: 1 },
         events: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onReady: (e: any) => {
+            if (cancelled) return;
             e.target.seekTo(initialSeconds ?? 0, true);
             intervalRef.current = setInterval(() => {
               onTimeUpdate(Math.floor(e.target.getCurrentTime()));
@@ -68,6 +74,8 @@ export default function YouTubePlayer({ videoId, initialSeconds, onTimeUpdate }:
     }
 
     return () => {
+      cancelled = true;
+      window.onYouTubeIframeAPIReady = () => {};
       clearInterval(intervalRef.current);
       if (playerRef.current) {
         playerRef.current.destroy();

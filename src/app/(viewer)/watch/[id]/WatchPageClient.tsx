@@ -25,8 +25,12 @@ export default function WatchPageClient({ movie }: Props) {
   }
 
   useEffect(() => {
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
     handleActivity();
     return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
       clearTimeout(timerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

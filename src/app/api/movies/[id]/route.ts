@@ -2,6 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { getMovieById } from "@/lib/movieData";
 import { createServerClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _: Request,
   { params }: { params: { id: string } }

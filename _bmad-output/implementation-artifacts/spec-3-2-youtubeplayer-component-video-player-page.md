@@ -3,6 +3,7 @@ title: 'YouTubePlayer Component & Video Player Page'
 type: 'feature'
 created: '2026-10-20'
 status: 'done'
+review_status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '0e073e0d6f20b322195672893dd4c4af36476754'
@@ -76,6 +77,14 @@ context: []
 - [x] `src/app/api/movies/[id]/route.ts` — SỬA: sau khi `getMovieById` thành công, `const { userId, getToken } = await auth()`; nếu `userId`: query `watch_history` `select('progress_seconds').eq('user_id', userId).eq('movie_id', params.id).maybeSingle()` dùng `createServerClient`; `progress_seconds = data?.progress_seconds ?? 0`; trả `{ data: { ...movie, progress_seconds } }`; nếu không auth: `progress_seconds = 0`; giữ nguyên error handling hiện tại
 - [x] `src/app/api/history/[id]/progress/route.test.ts` — TẠO MỚI: mock `@clerk/nextjs/server` và `@/lib/supabase/server`; test 401 khi `userId` null; test 200 + upsert shape khi auth; test 500 khi supabase throw
 - [x] `src/app/api/movies/[id]/route.test.ts` — SỬA: thêm test: unauthenticated → `progress_seconds: 0` trong data; authenticated → `progress_seconds: N` trong data
+
+### Review Findings
+
+- [x] [Review][Patch] `window.addEventListener` missing — spec yêu cầu `useEffect` gắn `mousemove`/`touchstart` trên `window`; chỉ có JSX handlers trên container div → events ngoài div không re-show overlay [src/app/(viewer)/watch/[id]/WatchPageClient.tsx]
+- [x] [Review][Patch] Post-unmount race trong YouTubePlayer — (a) cleanup trước `onReady` → interval được tạo sau unmount, không bao giờ cleared; (b) `window.onYouTubeIframeAPIReady` tồn tại sau unmount → `initPlayer` chạy lại khi API load muộn [src/components/player/YouTubePlayer.tsx]
+- [x] [Review][Patch] `extractVideoId` không guard empty v param — `?v=` trả empty string (falsy check fall-through); `new URL('')` throw rồi silent catch → `''`. Cả hai path gây empty `videoId` → player fail im lặng [src/components/player/YouTubePlayer.tsx:654-663]
+- [x] [Review][Patch] `/api/movies/[id]/route.ts` thiếu `force-dynamic` — route giờ gọi `auth()` để personalize `progress_seconds` nhưng thiếu `export const dynamic = "force-dynamic"`, không nhất quán với các routes khác trong diff [src/app/api/movies/[id]/route.ts]
+- [x] [Review][Patch] Test coverage gaps — 3 paths chưa có test: (a) `WatchPageClient` progress-save fetch (URL, method, body); (b) `WatchPage` server component `progress_seconds` query; (c) `YouTubePlayer` component behavior (API injection, `seekTo`, `destroy`) [WatchPageClient.test.tsx (new), watch/[id]/page.test.tsx (new), YouTubePlayer.test.tsx (expand)]
 
 ## Implementation Notes
 

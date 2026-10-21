@@ -10,9 +10,15 @@ describe("extractVideoId", () => {
     expect(extractVideoId("abc123")).toBe("abc123");
   });
 
-  it("trả về URL nguyên vẹn khi URL không có v param", () => {
-    expect(extractVideoId("https://www.youtube.com/watch")).toBe(
-      "https://www.youtube.com/watch"
-    );
+  it("trả về chuỗi rỗng khi URL không có v param", () => {
+    expect(extractVideoId("https://www.youtube.com/watch")).toBe("");
+  });
+
+  it("trả về chuỗi rỗng khi videoUrl là empty string", () => {
+    expect(extractVideoId("")).toBe("");
+  });
+
+  it("trả về chuỗi rỗng khi URL có ?v= nhưng value rỗng", () => {
+    expect(extractVideoId("https://www.youtube.com/watch?v=")).toBe("");
   });
 });
