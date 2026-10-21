@@ -8,6 +8,12 @@ import type { MovieSummary } from "@/types";
 let capturedOnLoad: (() => void) | undefined;
 let capturedOnError: (() => void) | undefined;
 
+vi.mock("@/components/movie/WatchlistButton", () => ({
+  WatchlistButton: ({ movieId }: { movieId: string }) => (
+    <button aria-label="Thêm vào danh sách" data-movie-id={movieId} />
+  ),
+}));
+
 // Mock next/image — captures onLoad/onError instead of dropping them.
 vi.mock("next/image", () => ({
   default: ({
@@ -77,11 +83,10 @@ describe("MovieCard", () => {
     expect(screen.getByText("8.5")).toBeInTheDocument();
   });
 
-  it("renders bookmark SVG in the DOM with aria-hidden", () => {
-    const { container } = render(<MovieCard movie={baseMovie} />);
-    const svg = container.querySelector("svg");
-    expect(svg).toBeInTheDocument();
-    expect(svg).toHaveAttribute("aria-hidden", "true");
+  it("renders WatchlistButton with correct movieId", () => {
+    render(<MovieCard movie={baseMovie} />);
+    const btn = screen.getByRole("button", { name: /Thêm vào danh sách/i });
+    expect(btn).toHaveAttribute("data-movie-id", "movie-1");
   });
 
   it("renders skeleton when image has not loaded", () => {

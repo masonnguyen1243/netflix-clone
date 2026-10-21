@@ -53,7 +53,7 @@ export function MovieCard({ movie }: MovieCardProps) {
 
       {/* Watchlist button at top-right of card */}
       <div
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 motion-safe:transition-opacity motion-safe:duration-150"
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 has-[[aria-label='Đã lưu']]:opacity-100 motion-safe:transition-opacity motion-safe:duration-150"
         onClick={(e) => e.preventDefault()}
       >
         <WatchlistButton movieId={id} />

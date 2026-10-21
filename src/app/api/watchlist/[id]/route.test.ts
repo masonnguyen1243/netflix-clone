@@ -8,11 +8,9 @@ const {
   mockEq,
   mockMaybeSingle,
   mockDelete,
-  mockDeleteEq,
   mockInsert,
 } = vi.hoisted(() => {
   const mockMaybeSingle = vi.fn();
-  const mockDeleteEq = vi.fn();
   const mockDelete = vi.fn();
   const mockInsert = vi.fn();
   const mockEq = vi.fn();
@@ -26,7 +24,6 @@ const {
     mockEq,
     mockMaybeSingle,
     mockDelete,
-    mockDeleteEq,
     mockInsert,
   };
 });

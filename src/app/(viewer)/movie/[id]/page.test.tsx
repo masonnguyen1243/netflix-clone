@@ -171,6 +171,8 @@ describe("MovieDetailPage", () => {
     const btn = screen.getByRole("button", { name: /Thêm vào danh sách/i });
     expect(btn).toHaveAttribute("data-movie-id", "uuid-1");
     expect(btn).toHaveAttribute("data-initial-in-watchlist", "true");
+    expect(mockEq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mockEq).toHaveBeenCalledWith("movie_id", "uuid-1");
   });
 
   it("passes initialInWatchlist=false to WatchlistButton when authenticated user has movie NOT in watchlist", async () => {
@@ -188,5 +190,7 @@ describe("MovieDetailPage", () => {
     const btn = screen.getByRole("button", { name: /Thêm vào danh sách/i });
     expect(btn).toHaveAttribute("data-movie-id", "uuid-1");
     expect(btn).toHaveAttribute("data-initial-in-watchlist", "false");
+    expect(mockEq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mockEq).toHaveBeenCalledWith("movie_id", "uuid-1");
   });
 });

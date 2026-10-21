@@ -137,3 +137,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
   summary: WatchlistButton component không có React unit tests cho optimistic update, rollback, và toast logic
   evidence: Spec chỉ yêu cầu route tests; component logic (handleClick, state rollback, aria-label toggling, toast messages) hoàn toàn chưa được test ở component level. Để Story 4.x hoặc dedicated test story.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-4-1-watchlist-api-watchlistbutton-component.md`
+  summary: getToken({ template: 'supabase' }) trong các watchlist routes không guard trường hợp trả null khi Clerk JWT template chưa cấu hình
+  evidence: maybe-false (medium nếu xảy ra) — null token khiến createServerClient factory trả null; hành vi phụ thuộc vào implementation của @/lib/supabase/server và RLS config; nếu Supabase dùng anon key thay vì JWT, RLS có thể expose hoặc block data sai. Pre-existing pattern trong toàn bộ codebase (history route dùng cùng approach). Fix: guard token !== null trước khi tạo client; yêu cầu thay đổi pattern toàn project.

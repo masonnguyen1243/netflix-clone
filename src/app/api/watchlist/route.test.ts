@@ -73,6 +73,7 @@ describe("GET /api/watchlist", () => {
       title: "Test Movie",
       genres: ["Action"],
     });
+    expect(mockEq).toHaveBeenCalledWith("user_id", "user-1");
   });
 
   it("returns HTTP 500 when Supabase throws an error", async () => {
